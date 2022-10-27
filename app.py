@@ -18,8 +18,9 @@ def collect_data(page: int):
     driver.maximize_window()
     newUrl = driver.current_url
     data = []
-    for n in range(page):
-        driver.get(newUrl + f'?start={n*50}')
+    list_url = [newUrl + f'?start={n*50}' for n in range(page)]
+    for url in list_url:
+        driver.get(url)
         selections = driver.find_elements(
             By.CLASS_NAME, 'eb-post-listing__item')
         for element in selections:
