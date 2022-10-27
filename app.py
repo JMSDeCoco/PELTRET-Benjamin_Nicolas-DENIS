@@ -67,7 +67,7 @@ def createJson(n):
 if (len(sys.argv) == 1):
     createJson(1)
 else:
-    createJson(int(sys.argv[2]))
+    createJson(int(sys.argv[1]))
 
 time.sleep(2)
 driver.close()
