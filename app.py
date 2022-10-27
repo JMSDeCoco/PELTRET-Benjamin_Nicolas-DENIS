@@ -1,13 +1,23 @@
+from pickle import TRUE
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 import time
-import json
 import sys
+import json
+from utiles import DataBase
+import sqlalchemy as db
+import pandas as pd
 
 DRIVER_PATH = './chromedriver'
 BASE_URL = 'https://loltracker.com/'
 
 driver = webdriver.Chrome(DRIVER_PATH)
+base = DataBase('LeagueTrack')
+
+try:
+    base.create_table('Tracker',tracker_id=db.String,tracker_title=db.String,tracker_date=db.String,tracker_author=db.String,tracker_content=db.String,tracker_cat=db.String,tracker_img=db.String)
+except:
+    print(False)
 
 
 def collect_data(page: int):
@@ -24,7 +34,14 @@ def collect_data(page: int):
         selections = driver.find_elements(
             By.CLASS_NAME, 'eb-post-listing__item')
         for element in selections:
+            id_select = element.get_attribute('data-id')
+
             data_temp = {}
+            try:
+                data_temp['id'] = id_select
+            except:
+                data_temp['id'] = None
+
             try:
                 data_temp['title'] = element.text.split('\n')[0]
             except:
@@ -57,6 +74,10 @@ def collect_data(page: int):
                 data_temp['img'] = None
 
             data.append(data_temp)
+            if len(pd.DataFrame(base.select_table('Tracker')).columns) == 0:
+                base.add_row('Tracker',tracker_id=str(id_select),tracker_title=data_temp['title'],tracker_date=data_temp['date'],tracker_author=data_temp['author'],tracker_content=data_temp['desc'],tracker_cat=data_temp['keys'],tracker_img=data_temp['img'])
+            else:
+                base.add_row('Tracker',tracker_id=str(id_select),tracker_title=data_temp['title'],tracker_date=data_temp['date'],tracker_author=data_temp['author'],tracker_content=data_temp['desc'],tracker_cat=data_temp['keys'],tracker_img=data_temp['img'])
     return data
 
 
